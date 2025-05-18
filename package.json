@@ -1,0 +1,11 @@
+{
+  "name": "sort-lab-demo",
+  "version": "1.0.0",
+  "description": "Demo for a sort algorithm visualization in TypeScript.",
+  "scripts": {
+    "dev": "npx serve . -l 9000"
+  },
+  "devDependencies": {
+    "serve": "^14.2.0"
+  }
+}

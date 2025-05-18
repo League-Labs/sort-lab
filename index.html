@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sort Algorithm Demo</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f7f7f7;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .container {
+      margin-top: 40px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      padding: 32px 40px 24px 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    #playfield {
+      width: 800px;
+      height: 350px;
+      display: flex;
+      align-items: flex-end;
+      background: #e3e3e3;
+      border-radius: 8px;
+      margin-bottom: 32px;
+      overflow: hidden;
+      position: relative;
+    }
+    .bar {
+      flex: 1;
+      margin: 0 1px;
+      background: #4f8cff;
+      border-radius: 2px 2px 0 0;
+      transition: height 0.2s, background 0.2s;
+    }
+    .bar.sorted {
+      background: #22c55e; /* green */
+    }
+    .bar.notsorted {
+      background: #4f8cff; /* blue (default) */
+    }
+    .bar.pivot {
+      background: #f59e42; /* orange */
+    }
+    .bar.compare {
+      background: #fbbf24; /* yellow */
+    }
+    .bar.swap {
+      background: #ef4444; /* red */
+    }
+    .controls {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 8px;
+    }
+    .controls button {
+      padding: 8px 24px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 4px;
+      background: #4f8cff;
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .controls button:hover {
+      background: #2563eb;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="playfield">
+      <div class="bar swap" style="height: 217px;"></div>
+      <div class="bar" style="height: 156px;"></div>
+      <div class="bar compare" style="height: 301px;"></div>
+      <div class="bar" style="height: 44px;"></div>
+      <div class="bar sorted" style="height: 120px;"></div>
+      <div class="bar" style="height: 308px;"></div>
+      <div class="bar notsorted" style="height: 176px;"></div>
+      <div class="bar" style="height: 65px;"></div>
+      <div class="bar pivot" style="height: 289px;"></div>
+      <div class="bar" style="height: 98px;"></div>
+      <div class="bar" style="height: 320px;"></div>
+      <div class="bar" style="height: 142px;"></div>
+      <div class="bar" style="height: 67px;"></div>
+      <div class="bar" style="height: 188px;"></div>
+      <div class="bar" style="height: 273px;"></div>
+      <div class="bar" style="height: 30px;"></div>
+      <div class="bar" style="height: 312px;"></div>
+      <div class="bar" style="height: 110px;"></div>
+      <div class="bar" style="height: 251px;"></div>
+      <div class="bar" style="height: 59px;"></div>
+      <div class="bar" style="height: 203px;"></div>
+      <div class="bar" style="height: 134px;"></div>
+      <div class="bar" style="height: 307px;"></div>
+      <div class="bar" style="height: 85px;"></div>
+      <div class="bar" style="height: 170px;"></div>
+    </div>
+    <div class="controls">
+      <button id="start-btn">Start</button>
+      <button id="stop-btn">Stop</button>
+      <button id="restart-btn">Restart</button>
+      <button id="new-btn">New</button>
+    </div>
+  </div>
+  <script>
+    // JavaScript code for sorting algorithms will go here
+  </script>
+</body>
+</html>
