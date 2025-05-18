@@ -117,7 +117,8 @@
   <script src="SortDemo.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      new SortDemo();
+      // @ts-ignore
+      window.demo = new SortDemo.SortDemo();
     });
   </script>
 </body>
