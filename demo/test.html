@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sort Lab - Simple Test</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+      padding: 20px;
+    }
+    #container {
+      height: 300px;
+      margin-bottom: 20px;
+    }
+    #debug {
+      font-family: monospace;
+      white-space: pre-wrap;
+      border: 1px solid #ccc;
+      padding: 10px;
+      height: 200px;
+      overflow-y: auto;
+    }
+    button {
+      margin: 5px;
+      padding: 8px 16px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Sort Lab - Simple Test</h1>
+  <div id="container"></div>
+  <div>
+    <button id="start">Start Bubble Sort</button>
+    <button id="reset">Reset</button>
+  </div>
+  <h3>Debug Output:</h3>
+  <div id="debug"></div>
+
+  <script src="../dist/bundle.js"></script>
+  <script>
+    // Debug logging
+    const debug = document.getElementById('debug');
+    function log(message) {
+      debug.textContent += message + '\n';
+      debug.scrollTop = debug.scrollHeight;
+      console.log(message);
+    }
+
+    // Log the library exports
+    log('Available exports: ' + Object.keys(SortVisualizer).join(', '));
+
+    // Initialize
+    let visualizer;
+    try {
+      log('Creating visualizer...');
+      visualizer = new SortVisualizer.SortVisualizer({
+        container: '#container',
+        elementCount: 20,
+        showControls: false
+      });
+      log('Visualizer created successfully');
+    } catch (error) {
+      log('Error creating visualizer: ' + error.message);
+    }
+
+    // Start button
+    document.getElementById('start').addEventListener('click', async () => {
+      try {
+        log('Starting bubble sort...');
+        visualizer.start();
+        if (SortVisualizer.SortAlgorithms) {
+          log('SortAlgorithms found, running bubble sort...');
+          await SortVisualizer.SortAlgorithms.bubbleSort(visualizer);
+          log('Bubble sort completed');
+        } else {
+          log('Error: SortAlgorithms not found in library');
+        }
+      } catch (error) {
+        log('Error during bubble sort: ' + error.message);
+      }
+    });
+
+    // Reset button
+    document.getElementById('reset').addEventListener('click', () => {
+      try {
+        log('Resetting...');
+        visualizer.reset();
+        log('Reset complete');
+      } catch (error) {
+        log('Error during reset: ' + error.message);
+      }
+    });
+  </script>
+</body>
+</html>
