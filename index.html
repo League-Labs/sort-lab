@@ -81,15 +81,15 @@
 <body>
   <div class="container">
     <div id="playfield">
-      <div class="bar swap" style="height: 217px;"></div>
+      <div class="bar" style="height: 217px;"></div>
       <div class="bar" style="height: 156px;"></div>
-      <div class="bar compare" style="height: 301px;"></div>
+      <div class="bar" style="height: 301px;"></div>
       <div class="bar" style="height: 44px;"></div>
-      <div class="bar sorted" style="height: 120px;"></div>
+      <div class="bar" style="height: 120px;"></div>
       <div class="bar" style="height: 308px;"></div>
-      <div class="bar notsorted" style="height: 176px;"></div>
+      <div class="bar" style="height: 176px;"></div>
       <div class="bar" style="height: 65px;"></div>
-      <div class="bar pivot" style="height: 289px;"></div>
+      <div class="bar" style="height: 289px;"></div>
       <div class="bar" style="height: 98px;"></div>
       <div class="bar" style="height: 320px;"></div>
       <div class="bar" style="height: 142px;"></div>
@@ -112,13 +112,15 @@
       <button id="stop-btn">Stop</button>
       <button id="restart-btn">Restart</button>
       <button id="new-btn">New</button>
+      <label for="speed-slider" style="margin-left:24px; font-size:1rem; color:#333;">Speed:</label>
+      <input type="range" id="speed-slider" min="5" max="500" value="50" style="width:120px; vertical-align:middle;">
     </div>
   </div>
-  <script src="SortDemo.js"></script>
-  <script>
+  <script type="module">
+    import { SortDemo } from './SortDemo.js';
     document.addEventListener('DOMContentLoaded', () => {
-      // @ts-ignore
-      window.demo = new SortDemo.SortDemo();
+      window.SortDemo = SortDemo;
+      new SortDemo();
     });
   </script>
 </body>

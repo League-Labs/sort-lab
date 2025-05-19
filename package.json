@@ -6,9 +6,11 @@
     "dev": "npx serve . -l 9000",
     "build": "tsc",
     "build:watch": "tsc --watch",
-    "clean": "rm -f SortDemo.js"
+    "clean": "rm -f SortDemo.js",
+    "dev:watch": "concurrently \"npm run build:watch\" \"npx serve . -l 9000\""
   },
   "devDependencies": {
+    "concurrently": "^7.6.0",
     "serve": "^14.2.0",
     "typescript": "^5.8.3"
   }
