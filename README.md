@@ -8,7 +8,7 @@ of elements and animation  speed. Using the api functions will automatically upd
 
 ## Setup
 
-You will need to have node and npm installed, then run 
+You will need to have node and npm installed, then run `npm install`
 
 ## Implementing Sort Routines
 
