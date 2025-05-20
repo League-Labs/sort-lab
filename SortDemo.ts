@@ -1,4 +1,12 @@
 /**
+ * Type definition for sorting algorithms
+ */
+interface Algorithm {
+  title: string;
+  func: (n: number) => Promise<void>;
+}
+
+/**
  * Main class for Sort Visualization Demo
  * Provides interactive controls and visualization for sorting algorithms
  */
@@ -10,6 +18,9 @@ export class SortDemo {
 
   private newBtn: HTMLButtonElement;
   private speedSlider: HTMLInputElement;
+  private algorithmSelect: HTMLSelectElement;
+  private algorithmTitle: HTMLElement;
+  
   private pauseDelay: number = 100; // Default speed in ms
   private speedSlowest = 1000;
   private speedFastest = 10;
@@ -20,6 +31,16 @@ export class SortDemo {
   // Control flags
   private isSorting: boolean = false; // Is a sort in progress?
   private isPaused: boolean = false; // Is the sort paused?
+  
+  // Available sorting algorithms
+  private algorithms: Algorithm[] = [
+    { title: "Bubble Sort", func: this.bubbleSort.bind(this) },
+    { title: "Insertion Sort (Swap)", func: this.insertionSortSwap.bind(this) },
+    { title: "Insertion Sort (Move)", func: this.insertionSortMove.bind(this) }
+  ];
+  
+  // Currently selected algorithm
+  private currentAlgorithm: Algorithm;
 
   constructor() {
     this.playfield = document.getElementById('playfield')!;
@@ -29,6 +50,8 @@ export class SortDemo {
    
     this.newBtn = document.getElementById('new-btn') as HTMLButtonElement;
     this.speedSlider = document.getElementById('speed-slider') as HTMLInputElement;
+    this.algorithmSelect = document.getElementById('algorithm-select') as HTMLSelectElement;
+    this.algorithmTitle = document.getElementById('algorithm-title')!;
 
     this.newBtn.addEventListener('click', () => this.createNewPlayfield());
     this.startBtn.addEventListener('click', () => this.handleStartClick());
@@ -44,6 +67,34 @@ export class SortDemo {
       this.updateSpeedFromSlider();
       this.speedSlider.addEventListener('input', () => this.updateSpeedFromSlider());
     }
+
+    // Set up algorithm selection
+    if (this.algorithmSelect) {
+      // Clear any existing options first
+      this.algorithmSelect.innerHTML = '';
+      
+      // Add options for each algorithm
+      this.algorithms.forEach((algo, index) => {
+        const option = document.createElement('option');
+        option.value = index.toString();
+        option.textContent = algo.title;
+        this.algorithmSelect.appendChild(option);
+      });
+      
+      // Set the change event listener
+      this.algorithmSelect.addEventListener('change', () => this.updateAlgorithm());
+    }
+    
+    // Set default algorithm
+    this.currentAlgorithm = this.algorithms[0];
+    
+    // Update the title
+    if (this.algorithmTitle) {
+      this.algorithmTitle.textContent = this.currentAlgorithm.title;
+    }
+    
+    // Create initial playfield with random bars
+    this.createNewPlayfield();
   }
 
   /**
@@ -313,6 +364,20 @@ export class SortDemo {
 
 
   /**
+   * Updates the algorithm based on the current selection in the dropdown
+   */
+  updateAlgorithm() {
+    const selectedIndex = parseInt(this.algorithmSelect.value);
+    this.currentAlgorithm = this.algorithms[selectedIndex];
+    this.algorithmTitle.textContent = this.currentAlgorithm.title;
+    
+    // Reset to start if we were in the middle of a sort
+    if (this.isSorting) {
+      this.handleStopClick();
+    }
+  }
+
+  /**
    * Runs the selected sorting algorithm with error handling
    */
   async sortRunner() {
@@ -321,7 +386,7 @@ export class SortDemo {
       const n = this.playfield.children.length;
       
       // Run the insertion sort algorithm with the number of elements
-      await this.insertionSortMove(n);
+      await this.currentAlgorithm.func(n);
       
       // Sorting completed successfully
       this.isSorting = false;
@@ -331,6 +396,13 @@ export class SortDemo {
       console.log('Sorting interrupted');
     }
   }
+
+/**  =========================================
+ * 
+ *   Sorting Algorithms
+ * 
+ *   ========================================= */
+
 
   /**
    * Implements the bubble sort algorithm with visualization
@@ -394,40 +466,30 @@ export class SortDemo {
    * For each element, insert it directly into its correct position in the sorted part of the array
    * @param n The number of elements to sort
    */
-  async insertionSortMove(n: number) {
-    // Mark the first element as sorted initially
-    this.markSorted(0);
-    
-    // Start from the second element (index 1)
-    for (let i = 1; i < n; i++) {
-      // Find the correct position for the current element
-      let j = 0;
-      const valI = this.get(i);
-      
-      // Find the insertion point in the sorted portion
-      while (j < i) {
-        const valJ = this.get(j);
-        
-        if (valI !== null && valJ !== null && valI < valJ) {
-          break;
-        }
-        j++;
+async insertionSortMove(n: number) {
+  // Mark the first element as sorted
+  this.markSorted(0);
+
+  for (let i = 1; i < n; i++) {
+
+    let j = 0;
+
+    // Find where to insert val in the sorted portion
+    while (j < i && this.compare(j, i) <= 0) {
+      j++;
+    }
+
+    if (j < i) {
+      // Move the element to its new position
+      await this.move(i, j);
+      // Mark sorted section
+      for (let k = 0; k <= i; k++) {
+        this.markSorted(k);
       }
-      
-      // If the element needs to be moved (j is not i)
-      if (j < i) {
-        // Move the element directly to its correct position
-        await this.move(i, j);
-        
-        // When we move an element, the indexes shift, so we need to mark
-        // the correctly sorted elements (which are now at positions j+1 to i)
-        for (let k = j; k <= i; k++) {
-          this.markSorted(k);
-        }
-      } else {
-        // If no move needed, just mark the current element as sorted
-        this.markSorted(i);
-      }
+    } else {
+      // No move needed, just mark as sorted
+      this.markSorted(i);
     }
   }
+}
 }

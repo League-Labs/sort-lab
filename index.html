@@ -107,12 +107,17 @@
       <div class="bar" style="height: 85px;"></div>
       <div class="bar" style="height: 170px;"></div>
     </div>
+    <h2 id="algorithm-title" style="text-align:center; margin:0 0 16px 0; color:#333;">Bubble Sort</h2>
     <div class="controls">
       <button id="start-btn">Start</button>
       <button id="stop-btn">Stop</button>
       <button id="restart-btn">Restart</button>
       <button id="new-btn">New</button>
-      <label for="speed-slider" style="margin-left:24px; font-size:1rem; color:#333;">Speed:</label>
+      <label for="algorithm-select" style="margin-left:16px; font-size:1rem; color:#333;">Algorithm:</label>
+      <select id="algorithm-select" style="margin-right:16px; padding:4px 8px; border-radius:4px; border:1px solid #ddd;">
+        <!-- Will be populated from JavaScript -->
+      </select>
+      <label for="speed-slider" style="margin-left:16px; font-size:1rem; color:#333;">Speed:</label>
       <input type="range" id="speed-slider" min="5" max="500" value="100" style="width:120px; vertical-align:middle;">
     </div>
   </div>

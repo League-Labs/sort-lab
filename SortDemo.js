@@ -22,12 +22,20 @@ export class SortDemo {
         // Control flags
         this.isSorting = false; // Is a sort in progress?
         this.isPaused = false; // Is the sort paused?
+        // Available sorting algorithms
+        this.algorithms = [
+            { title: "Bubble Sort", func: this.bubbleSort.bind(this) },
+            { title: "Insertion Sort (Swap)", func: this.insertionSortSwap.bind(this) },
+            { title: "Insertion Sort (Move)", func: this.insertionSortMove.bind(this) }
+        ];
         this.playfield = document.getElementById('playfield');
         this.startBtn = document.getElementById('start-btn');
         this.stopBtn = document.getElementById('stop-btn');
         this.restartBtn = document.getElementById('restart-btn');
         this.newBtn = document.getElementById('new-btn');
         this.speedSlider = document.getElementById('speed-slider');
+        this.algorithmSelect = document.getElementById('algorithm-select');
+        this.algorithmTitle = document.getElementById('algorithm-title');
         this.newBtn.addEventListener('click', () => this.createNewPlayfield());
         this.startBtn.addEventListener('click', () => this.handleStartClick());
         this.stopBtn.addEventListener('click', () => this.handleStopClick());
@@ -40,6 +48,28 @@ export class SortDemo {
             this.updateSpeedFromSlider();
             this.speedSlider.addEventListener('input', () => this.updateSpeedFromSlider());
         }
+        // Set up algorithm selection
+        if (this.algorithmSelect) {
+            // Clear any existing options first
+            this.algorithmSelect.innerHTML = '';
+            // Add options for each algorithm
+            this.algorithms.forEach((algo, index) => {
+                const option = document.createElement('option');
+                option.value = index.toString();
+                option.textContent = algo.title;
+                this.algorithmSelect.appendChild(option);
+            });
+            // Set the change event listener
+            this.algorithmSelect.addEventListener('change', () => this.updateAlgorithm());
+        }
+        // Set default algorithm
+        this.currentAlgorithm = this.algorithms[0];
+        // Update the title
+        if (this.algorithmTitle) {
+            this.algorithmTitle.textContent = this.currentAlgorithm.title;
+        }
+        // Create initial playfield with random bars
+        this.createNewPlayfield();
     }
     /**
      * Handles Start button click - either starts sorting or resumes if paused
@@ -297,6 +327,18 @@ export class SortDemo {
         });
     }
     /**
+     * Updates the algorithm based on the current selection in the dropdown
+     */
+    updateAlgorithm() {
+        const selectedIndex = parseInt(this.algorithmSelect.value);
+        this.currentAlgorithm = this.algorithms[selectedIndex];
+        this.algorithmTitle.textContent = this.currentAlgorithm.title;
+        // Reset to start if we were in the middle of a sort
+        if (this.isSorting) {
+            this.handleStopClick();
+        }
+    }
+    /**
      * Runs the selected sorting algorithm with error handling
      */
     sortRunner() {
@@ -305,7 +347,7 @@ export class SortDemo {
                 // Get the number of elements to sort
                 const n = this.playfield.children.length;
                 // Run the insertion sort algorithm with the number of elements
-                yield this.insertionSortMove(n);
+                yield this.currentAlgorithm.func(n);
                 // Sorting completed successfully
                 this.isSorting = false;
                 this.startBtn.textContent = 'Start';
@@ -316,6 +358,11 @@ export class SortDemo {
             }
         });
     }
+    /**  =========================================
+     *
+     *   Sorting Algorithms
+     *
+     *   ========================================= */
     /**
      * Implements the bubble sort algorithm with visualization
      * Repeatedly steps through the list, compares adjacent elements, and swaps them if needed
@@ -375,33 +422,24 @@ export class SortDemo {
      */
     insertionSortMove(n) {
         return __awaiter(this, void 0, void 0, function* () {
-            // Mark the first element as sorted initially
+            // Mark the first element as sorted
             this.markSorted(0);
-            // Start from the second element (index 1)
             for (let i = 1; i < n; i++) {
-                // Find the correct position for the current element
                 let j = 0;
-                const valI = this.get(i);
-                // Find the insertion point in the sorted portion
-                while (j < i) {
-                    const valJ = this.get(j);
-                    if (valI !== null && valJ !== null && valI < valJ) {
-                        break;
-                    }
+                // Find where to insert val in the sorted portion
+                while (j < i && this.compare(j, i) <= 0) {
                     j++;
                 }
-                // If the element needs to be moved (j is not i)
                 if (j < i) {
-                    // Move the element directly to its correct position
+                    // Move the element to its new position
                     yield this.move(i, j);
-                    // When we move an element, the indexes shift, so we need to mark
-                    // the correctly sorted elements (which are now at positions j+1 to i)
-                    for (let k = j; k <= i; k++) {
+                    // Mark sorted section
+                    for (let k = 0; k <= i; k++) {
                         this.markSorted(k);
                     }
                 }
                 else {
-                    // If no move needed, just mark the current element as sorted
+                    // No move needed, just mark as sorted
                     this.markSorted(i);
                 }
             }
