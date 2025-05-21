@@ -7,13 +7,20 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+// Add this enum at the top before the SortDemo class
+var PlayfieldType;
+(function (PlayfieldType) {
+    PlayfieldType["RANDOM"] = "random";
+    PlayfieldType["SORTED_DOWN"] = "sorted down";
+    PlayfieldType["SORTED_UP"] = "sorted up";
+})(PlayfieldType || (PlayfieldType = {}));
 /**
  * Main class for Sort Visualization Demo
  * Provides interactive controls and visualization for sorting algorithms
  */
 export class SortDemo {
     constructor() {
-        var _a;
+        var _a, _b;
         this.pauseDelay = 100; // Default speed in ms
         this.speedSlowest = 1000;
         this.speedFastest = 10;
@@ -74,12 +81,22 @@ export class SortDemo {
         }
         // Create initial playfield with random bars
         this.createNewPlayfield();
-        // Modify the new button implementation to include a dropdown
-        const newButton = document.getElementById('new-button');
-        if (newButton) {
-            // Convert the button to a button with dropdown
-            newButton.innerHTML = 'New <span class="dropdown-arrow">▼</span>';
-            newButton.style.position = 'relative';
+        // Fix dropdown menu implementation for the New button
+        if (this.newBtn) {
+            // Add a container div to better manage positioning
+            const buttonContainer = document.createElement('div');
+            buttonContainer.style.position = 'relative';
+            buttonContainer.style.display = 'inline-block';
+            // Clone the current button to preserve event listeners
+            const newBtnClone = this.newBtn.cloneNode(true);
+            // Update the button to include the dropdown arrow
+            newBtnClone.innerHTML = 'New <span class="dropdown-arrow">▼</span>';
+            // Replace the original button with our container
+            (_a = this.newBtn.parentNode) === null || _a === void 0 ? void 0 : _a.insertBefore(buttonContainer, this.newBtn);
+            buttonContainer.appendChild(newBtnClone);
+            (_b = this.newBtn.parentNode) === null || _b === void 0 ? void 0 : _b.removeChild(this.newBtn);
+            // Update the button reference
+            this.newBtn = newBtnClone;
             // Create dropdown menu
             const dropdownMenu = document.createElement('div');
             dropdownMenu.className = 'dropdown-menu';
@@ -92,10 +109,14 @@ export class SortDemo {
             dropdownMenu.style.boxShadow = '0px 8px 16px 0px rgba(0,0,0,0.2)';
             dropdownMenu.style.zIndex = '1';
             // Add options to the dropdown menu
-            const options = Object.values(PlayfieldType);
-            options.forEach(option => {
+            const options = [
+                { type: PlayfieldType.RANDOM, label: 'Random' },
+                { type: PlayfieldType.SORTED_UP, label: 'Sorted Up' },
+                { type: PlayfieldType.SORTED_DOWN, label: 'Sorted Down' }
+            ];
+            options.forEach(({ type, label }) => {
                 const item = document.createElement('a');
-                item.textContent = option.charAt(0).toUpperCase() + option.slice(1);
+                item.textContent = label;
                 item.style.padding = '12px 16px';
                 item.style.textDecoration = 'none';
                 item.style.display = 'block';
@@ -107,34 +128,25 @@ export class SortDemo {
                 item.addEventListener('mouseleave', () => {
                     item.style.backgroundColor = 'transparent';
                 });
-                item.addEventListener('click', () => {
-                    this.currentPlayfieldType = option;
+                item.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.currentPlayfieldType = type;
                     dropdownMenu.style.display = 'none';
-                    this.reset();
+                    this.createNewPlayfield();
                 });
                 dropdownMenu.appendChild(item);
             });
-            // Append dropdown to the button's parent
-            (_a = newButton.parentNode) === null || _a === void 0 ? void 0 : _a.appendChild(dropdownMenu);
-            // Toggle dropdown on arrow click
-            const arrowSpan = newButton.querySelector('.dropdown-arrow');
-            if (arrowSpan) {
-                arrowSpan.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    dropdownMenu.style.display = dropdownMenu.style.display === 'none' ? 'block' : 'none';
-                });
-            }
-            // Main button still resets with current playfield type
-            newButton.addEventListener('click', () => {
-                if (e.target !== newButton.querySelector('.dropdown-arrow')) {
-                    this.reset();
-                }
+            // Append dropdown to the container
+            buttonContainer.appendChild(dropdownMenu);
+            // Handle button click - toggle dropdown menu
+            this.newBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const isVisible = dropdownMenu.style.display === 'block';
+                dropdownMenu.style.display = isVisible ? 'none' : 'block';
             });
             // Close dropdown when clicking elsewhere
-            document.addEventListener('click', (e) => {
-                if (!newButton.contains(e.target)) {
-                    dropdownMenu.style.display = 'none';
-                }
+            document.addEventListener('click', () => {
+                dropdownMenu.style.display = 'none';
             });
         }
     }
@@ -199,8 +211,8 @@ export class SortDemo {
         this.pauseDelay = Math.floor(invertedValue * (this.speedSlowest - this.speedFastest) + this.speedFastest); // 2000ms to 50ms
     }
     /**
-     * Creates a new playfield with random-height bars
-     * Clears any existing bars and generates a new set with random heights
+     * Creates a new playfield with bars according to the selected type
+     * Clears any existing bars and generates a new set with appropriate heights
      */
     createNewPlayfield() {
         // Stop any ongoing sorting when creating a new playfield
@@ -209,12 +221,40 @@ export class SortDemo {
         this.startBtn.textContent = 'Start';
         // Remove all bars and generate new ones
         this.playfield.innerHTML = '';
-        for (let i = 0; i < this.barCount; i++) {
-            const bar = document.createElement('div');
-            bar.className = 'bar';
-            const height = Math.floor(Math.random() * (this.maxHeight - this.minHeight + 1)) + this.minHeight;
-            bar.style.height = height + 'px';
-            this.playfield.appendChild(bar);
+        switch (this.currentPlayfieldType) {
+            case PlayfieldType.SORTED_UP:
+                // Create array sorted in ascending order
+                for (let i = 0; i < this.barCount; i++) {
+                    const bar = document.createElement('div');
+                    bar.className = 'bar';
+                    // Calculate height to create an ascending pattern
+                    const height = Math.floor((i + 1) * (this.maxHeight - this.minHeight) / this.barCount) + this.minHeight;
+                    bar.style.height = height + 'px';
+                    this.playfield.appendChild(bar);
+                }
+                break;
+            case PlayfieldType.SORTED_DOWN:
+                // Create array sorted in descending order
+                for (let i = 0; i < this.barCount; i++) {
+                    const bar = document.createElement('div');
+                    bar.className = 'bar';
+                    // Calculate height to create a descending pattern
+                    const height = Math.floor((this.barCount - i) * (this.maxHeight - this.minHeight) / this.barCount) + this.minHeight;
+                    bar.style.height = height + 'px';
+                    this.playfield.appendChild(bar);
+                }
+                break;
+            case PlayfieldType.RANDOM:
+            default:
+                // Create array with random heights
+                for (let i = 0; i < this.barCount; i++) {
+                    const bar = document.createElement('div');
+                    bar.className = 'bar';
+                    const height = Math.floor(Math.random() * (this.maxHeight - this.minHeight + 1)) + this.minHeight;
+                    bar.style.height = height + 'px';
+                    this.playfield.appendChild(bar);
+                }
+                break;
         }
         // Remove any CommonJS exports from the global scope (browser only)
         if (typeof window.exports !== 'undefined') {
@@ -465,9 +505,7 @@ export class SortDemo {
                 let j = i;
                 // Compare the current element with previous elements and swap when needed
                 while (j > 0) {
-                    const cmp = this.compare(j - 1, j);
-                    yield this.pause(3);
-                    if (cmp !== null && cmp > 0) {
+                    if (this.compare(j - 1, j) > 0) {
                         // If previous element is greater, swap them
                         yield this.swap(j - 1, j);
                         j--;
@@ -549,10 +587,3 @@ export class SortDemo {
         });
     }
 }
-// Add these types/enums for the playfield options
-var PlayfieldType;
-(function (PlayfieldType) {
-    PlayfieldType["RANDOM"] = "random";
-    PlayfieldType["SORTED_DOWN"] = "sorted down";
-    PlayfieldType["SORTED_UP"] = "sorted up";
-})(PlayfieldType || (PlayfieldType = {}));
