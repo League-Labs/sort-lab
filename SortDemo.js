@@ -34,8 +34,7 @@ export class SortDemo {
         this.algorithms = [
             { title: "Bubble Sort", func: this.bubbleSort.bind(this) },
             { title: "Insertion Sort (Swap)", func: this.insertionSortSwap.bind(this) },
-            { title: "Insertion Sort (Move)", func: this.insertionSortMove.bind(this) },
-            { title: "Aleks Insertion Sort Visualizer", func: this.aleksInsertionSortVisualizer.bind(this) }
+            { title: "Insertion Sort (Move)", func: this.insertionSortMove.bind(this) }
         ];
         // Add a new property to track the current playfield type
         this.currentPlayfieldType = PlayfieldType.RANDOM;
@@ -548,42 +547,6 @@ export class SortDemo {
                     this.markSorted(i);
                 }
             }
-        });
-    }
-    /**
-     * Aleks Insertion Sort Visualizer - uses user's visualizer.js logic for smooth, correct animation
-     * @param n The number of elements to sort
-     */
-    aleksInsertionSortVisualizer(n) {
-        return __awaiter(this, void 0, void 0, function* () {
-            // Mark the first element as sorted
-            this.markSorted(0);
-            for (let i = 1; i < n; i++) {
-                let key = this.get(i);
-                let j = i - 1;
-                // Highlight current, sorted, and compare bars
-                this.clearMarks();
-                this.getBar(i).classList.add('active');
-                if (j >= 0) this.getBar(j).classList.add('compare');
-                for (let k = 0; k < i; k++) this.markSorted(k);
-                yield this.pause(3);
-                while (j >= 0 && this.get(j) > key) {
-                    // Visually shift bar right
-                    yield this.swap(j, j + 1);
-                    this.clearMarks();
-                    this.getBar(i).classList.add('active');
-                    if (j >= 0) this.getBar(j).classList.add('compare');
-                    for (let k = 0; k < i; k++) this.markSorted(k);
-                    yield this.pause(3);
-                    j--;
-                }
-                // Place key in correct position (already done by swaps)
-                this.clearMarks();
-                for (let k = 0; k <= i; k++) this.markSorted(k);
-                yield this.pause(3);
-            }
-            // Mark all as sorted at the end
-            for (let k = 0; k < n; k++) this.markSorted(k);
         });
     }
 }
