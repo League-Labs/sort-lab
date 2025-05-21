@@ -1,3 +1,16 @@
+// Add this enum at the top before the SortDemo class
+enum PlayfieldType {
+  RANDOM = 'random',
+  SORTED_DOWN = 'sorted down',
+  SORTED_UP = 'sorted up'
+}
+
+/**
+ * SortDemo.ts
+ * This file contains the SortDemo class which provides a visual representation of sorting algorithms.
+ * It includes methods for creating a playfield, swapping elements, and running various sorting algorithms.
+ *
+
 /**
  * Type definition for sorting algorithms
  */
@@ -100,11 +113,10 @@ export class SortDemo {
     this.createNewPlayfield();
 
     // Modify the new button implementation to include a dropdown
-    const newButton = document.getElementById('new-button');
-    if (newButton) {
+    if (this.newBtn) {
       // Convert the button to a button with dropdown
-      newButton.innerHTML = 'New <span class="dropdown-arrow">▼</span>';
-      newButton.style.position = 'relative';
+      this.newBtn.innerHTML = 'New <span class="dropdown-arrow">▼</span>';
+      this.newBtn.style.position = 'relative';
       
       // Create dropdown menu
       const dropdownMenu = document.createElement('div');
@@ -119,8 +131,8 @@ export class SortDemo {
       dropdownMenu.style.zIndex = '1';
       
       // Add options to the dropdown menu
-      const options = Object.values(PlayfieldType);
-      options.forEach(option => {
+      const options = [PlayfieldType.RANDOM, PlayfieldType.SORTED_DOWN, PlayfieldType.SORTED_UP];
+      options.forEach((option: PlayfieldType) => {
         const item = document.createElement('a');
         item.textContent = option.charAt(0).toUpperCase() + option.slice(1);
         item.style.padding = '12px 16px';
@@ -140,17 +152,19 @@ export class SortDemo {
         item.addEventListener('click', () => {
           this.currentPlayfieldType = option as PlayfieldType;
           dropdownMenu.style.display = 'none';
-          this.reset();
+          this.createNewPlayfield();
         });
         
         dropdownMenu.appendChild(item);
       });
       
       // Append dropdown to the button's parent
-      newButton.parentNode?.appendChild(dropdownMenu);
+      if (this.newBtn.parentNode) {
+        this.newBtn.parentNode.appendChild(dropdownMenu);
+      }
       
       // Toggle dropdown on arrow click
-      const arrowSpan = newButton.querySelector('.dropdown-arrow');
+      const arrowSpan = this.newBtn.querySelector('.dropdown-arrow');
       if (arrowSpan) {
         arrowSpan.addEventListener('click', (e) => {
           e.stopPropagation();
@@ -158,16 +172,16 @@ export class SortDemo {
         });
       }
       
-      // Main button still resets with current playfield type
-      newButton.addEventListener('click', () => {
-        if (e.target !== newButton.querySelector('.dropdown-arrow')) {
-          this.reset();
+      // Main button still creates a new playfield with current type
+      this.newBtn.addEventListener('click', (e) => {
+        if (arrowSpan && e.target !== arrowSpan) {
+          this.createNewPlayfield();
         }
       });
       
       // Close dropdown when clicking elsewhere
       document.addEventListener('click', (e) => {
-        if (!newButton.contains(e.target as Node)) {
+        if (!this.newBtn.contains(e.target as Node)) {
           dropdownMenu.style.display = 'none';
         }
       });
@@ -239,8 +253,8 @@ export class SortDemo {
   }
 
   /**
-   * Creates a new playfield with random-height bars
-   * Clears any existing bars and generates a new set with random heights
+   * Creates a new playfield with bars according to the selected type
+   * Clears any existing bars and generates a new set with appropriate heights
    */
   createNewPlayfield() {
     // Stop any ongoing sorting when creating a new playfield
@@ -250,13 +264,45 @@ export class SortDemo {
     
     // Remove all bars and generate new ones
     this.playfield.innerHTML = '';
-    for (let i = 0; i < this.barCount; i++) {
-      const bar = document.createElement('div');
-      bar.className = 'bar';
-      const height = Math.floor(Math.random() * (this.maxHeight - this.minHeight + 1)) + this.minHeight;
-      bar.style.height = height + 'px';
-      this.playfield.appendChild(bar);
+    
+    switch(this.currentPlayfieldType) {
+      case PlayfieldType.SORTED_UP:
+        // Create array sorted in ascending order
+        for (let i = 0; i < this.barCount; i++) {
+          const bar = document.createElement('div');
+          bar.className = 'bar';
+          // Calculate height to create an ascending pattern
+          const height = Math.floor((i + 1) * (this.maxHeight - this.minHeight) / this.barCount) + this.minHeight;
+          bar.style.height = height + 'px';
+          this.playfield.appendChild(bar);
+        }
+        break;
+        
+      case PlayfieldType.SORTED_DOWN:
+        // Create array sorted in descending order
+        for (let i = 0; i < this.barCount; i++) {
+          const bar = document.createElement('div');
+          bar.className = 'bar';
+          // Calculate height to create a descending pattern
+          const height = Math.floor((this.barCount - i) * (this.maxHeight - this.minHeight) / this.barCount) + this.minHeight;
+          bar.style.height = height + 'px';
+          this.playfield.appendChild(bar);
+        }
+        break;
+        
+      case PlayfieldType.RANDOM:
+      default:
+        // Create array with random heights
+        for (let i = 0; i < this.barCount; i++) {
+          const bar = document.createElement('div');
+          bar.className = 'bar';
+          const height = Math.floor(Math.random() * (this.maxHeight - this.minHeight + 1)) + this.minHeight;
+          bar.style.height = height + 'px';
+          this.playfield.appendChild(bar);
+        }
+        break;
     }
+    
     // Remove any CommonJS exports from the global scope (browser only)
     if (typeof (window as any).exports !== 'undefined') {
       try { delete (window as any).exports; } catch (e) { /* ignore */ }
@@ -474,11 +520,11 @@ export class SortDemo {
     }
   }
 
-/**  =========================================
- * 
- *   Sorting Algorithms
- * 
- *   ========================================= */
+  /**  =========================================
+   * 
+   *   Sorting Algorithms
+   * 
+   *   ========================================= */
 
 
   /**
@@ -543,37 +589,33 @@ export class SortDemo {
    * For each element, insert it directly into its correct position in the sorted part of the array
    * @param n The number of elements to sort
    */
-async insertionSortMove(n: number) {
-  // Mark the first element as sorted
-  this.markSorted(0);
+  async insertionSortMove(n: number) {
+    // Mark the first element as sorted
+    this.markSorted(0);
 
-  for (let i = 1; i < n; i++) {
+    for (let i = 1; i < n; i++) {
 
-    let j = 0;
+      let j = 0;
 
-    // Find where to insert val in the sorted portion
-    while (j < i && this.compare(j, i) <= 0) {
-      j++;
-    }
-
-    if (j < i) {
-      // Move the element to its new position
-      await this.move(i, j);
-      // Mark sorted section
-      for (let k = 0; k <= i; k++) {
-        this.markSorted(k);
+      // Find where to insert val in the sorted portion
+      while (j < i && this.compare(j, i) <= 0) {
+        j++;
       }
-    } else {
-      // No move needed, just mark as sorted
-      this.markSorted(i);
+
+      if (j < i) {
+        // Move the element to its new position
+        await this.move(i, j);
+        // Mark sorted section
+        for (let k = 0; k <= i; k++) {
+          this.markSorted(k);
+        }
+      } else {
+        // No move needed, just mark as sorted
+        this.markSorted(i);
+      }
     }
   }
-}
+
 }
 
-// Add these types/enums for the playfield options
-enum PlayfieldType {
-  RANDOM = 'random',
-  SORTED_DOWN = 'sorted down',
-  SORTED_UP = 'sorted up'
-}
+
