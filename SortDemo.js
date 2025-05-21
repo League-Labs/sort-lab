@@ -27,7 +27,8 @@ export class SortDemo {
         this.algorithms = [
             { title: "Bubble Sort", func: this.bubbleSort.bind(this) },
             { title: "Insertion Sort (Swap)", func: this.insertionSortSwap.bind(this) },
-            { title: "Insertion Sort (Move)", func: this.insertionSortMove.bind(this) }
+            { title: "Insertion Sort (Move)", func: this.insertionSortMove.bind(this) },
+            { title: "My Insertion Sort", func: this.myInsertionSort.bind(this) }
         ];
         // Add a new property to track the current playfield type
         this.currentPlayfieldType = PlayfieldType.RANDOM;
@@ -509,6 +510,41 @@ export class SortDemo {
                     this.markSorted(i);
                 }
             }
+        });
+    }
+    /**
+     * Implements your custom insertion sort visualization (matching the visualizer.js logic)
+     * @param n The number of elements to sort
+     */
+    myInsertionSort(n) {
+        return __awaiter(this, void 0, void 0, function* () {
+            // Mark the first element as sorted
+            this.markSorted(0);
+            for (let i = 1; i < n; i++) {
+                let key = this.get(i);
+                let j = i - 1;
+                // Highlight current, sorted, and compare bars
+                this.clearMarks();
+                if (j >= 0) this.getBar(j).className = 'bar compare';
+                this.getBar(i).className = 'bar active';
+                for (let k = 0; k < i; k++) this.markSorted(k);
+                yield this.pause(3);
+                while (j >= 0 && this.get(j) > key) {
+                    // Move bar up
+                    yield this.swap(j, j + 1);
+                    this.clearMarks();
+                    if (j >= 0) this.getBar(j).className = 'bar compare';
+                    this.getBar(i).className = 'bar active';
+                    for (let k = 0; k < i; k++) this.markSorted(k);
+                    yield this.pause(3);
+                    j = j - 1;
+                }
+                // Mark sorted up to i
+                for (let k = 0; k <= i; k++) this.markSorted(k);
+                yield this.pause(3);
+            }
+            // Mark all as sorted at the end
+            for (let k = 0; k < n; k++) this.markSorted(k);
         });
     }
 }
