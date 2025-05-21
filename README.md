@@ -1,10 +1,13 @@
 # SortLab
 
-A TypeScript library for creating interactive sorting algorithm visualizations in web applications.
+A TypeScript library for creating interactive sorting algorithm visualizations
+in web applications.
 
-The single code file, `SortDemo.js`, contains an API for building sorting algorithms with 
-operations like `compare`, `swap`, `shift`, and `insert`. It also includes a simple UI with buttons for starting, stopping, and resetting the visualization, as well as sliders for adjusting the number 
-of elements and animation  speed. Using the api functions will automatically update the UI.
+The single code file, `SortDemo.js`, contains an API for building sorting
+algorithms with operations like `compare`, `swap`, `shift`, and `insert`. It
+also includes a simple UI with buttons for starting, stopping, and resetting the
+visualization, as well as sliders for adjusting the number of elements and
+animation  speed. Using the api functions will automatically update the UI.
 
 ## Setup
 
