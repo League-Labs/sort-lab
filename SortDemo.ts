@@ -574,10 +574,8 @@ export class SortDemo {
       
       // Compare the current element with previous elements and swap when needed
       while (j > 0) {
-        const cmp = this.compare(j - 1, j);
-        await this.pause(3);
 
-        if (cmp !== null && cmp > 0) {
+        if (this.compare(j - 1, j) > 0) {
           // If previous element is greater, swap them
           await this.swap(j - 1, j);
           j--;
