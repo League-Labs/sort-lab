@@ -9,7 +9,7 @@ enum PlayfieldType {
  * SortDemo.ts
  * This file contains the SortDemo class which provides a visual representation of sorting algorithms.
  * It includes methods for creating a playfield, swapping elements, and running various sorting algorithms.
- *
+ */
 
 /**
  * Type definition for sorting algorithms
