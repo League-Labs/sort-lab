@@ -112,11 +112,26 @@ export class SortDemo {
     // Create initial playfield with random bars
     this.createNewPlayfield();
 
-    // Modify the new button implementation to include a dropdown
+    // Fix dropdown menu implementation for the New button
     if (this.newBtn) {
-      // Convert the button to a button with dropdown
-      this.newBtn.innerHTML = 'New <span class="dropdown-arrow">▼</span>';
-      this.newBtn.style.position = 'relative';
+      // Add a container div to better manage positioning
+      const buttonContainer = document.createElement('div');
+      buttonContainer.style.position = 'relative';
+      buttonContainer.style.display = 'inline-block';
+      
+      // Clone the current button to preserve event listeners
+      const newBtnClone = this.newBtn.cloneNode(true) as HTMLButtonElement;
+      
+      // Update the button to include the dropdown arrow
+      newBtnClone.innerHTML = 'New <span class="dropdown-arrow">▼</span>';
+      
+      // Replace the original button with our container
+      this.newBtn.parentNode?.insertBefore(buttonContainer, this.newBtn);
+      buttonContainer.appendChild(newBtnClone);
+      this.newBtn.parentNode?.removeChild(this.newBtn);
+      
+      // Update the button reference
+      this.newBtn = newBtnClone;
       
       // Create dropdown menu
       const dropdownMenu = document.createElement('div');
@@ -131,10 +146,15 @@ export class SortDemo {
       dropdownMenu.style.zIndex = '1';
       
       // Add options to the dropdown menu
-      const options = [PlayfieldType.RANDOM, PlayfieldType.SORTED_DOWN, PlayfieldType.SORTED_UP];
-      options.forEach((option: PlayfieldType) => {
+      const options = [
+        { type: PlayfieldType.RANDOM, label: 'Random' },
+        { type: PlayfieldType.SORTED_UP, label: 'Sorted Up' },
+        { type: PlayfieldType.SORTED_DOWN, label: 'Sorted Down' }
+      ];
+      
+      options.forEach(({ type, label }) => {
         const item = document.createElement('a');
-        item.textContent = option.charAt(0).toUpperCase() + option.slice(1);
+        item.textContent = label;
         item.style.padding = '12px 16px';
         item.style.textDecoration = 'none';
         item.style.display = 'block';
@@ -149,8 +169,9 @@ export class SortDemo {
           item.style.backgroundColor = 'transparent';
         });
         
-        item.addEventListener('click', () => {
-          this.currentPlayfieldType = option as PlayfieldType;
+        item.addEventListener('click', (e) => {
+          e.stopPropagation();
+          this.currentPlayfieldType = type;
           dropdownMenu.style.display = 'none';
           this.createNewPlayfield();
         });
@@ -158,32 +179,19 @@ export class SortDemo {
         dropdownMenu.appendChild(item);
       });
       
-      // Append dropdown to the button's parent
-      if (this.newBtn.parentNode) {
-        this.newBtn.parentNode.appendChild(dropdownMenu);
-      }
+      // Append dropdown to the container
+      buttonContainer.appendChild(dropdownMenu);
       
-      // Toggle dropdown on arrow click
-      const arrowSpan = this.newBtn.querySelector('.dropdown-arrow');
-      if (arrowSpan) {
-        arrowSpan.addEventListener('click', (e) => {
-          e.stopPropagation();
-          dropdownMenu.style.display = dropdownMenu.style.display === 'none' ? 'block' : 'none';
-        });
-      }
-      
-      // Main button still creates a new playfield with current type
+      // Handle button click - toggle dropdown menu
       this.newBtn.addEventListener('click', (e) => {
-        if (arrowSpan && e.target !== arrowSpan) {
-          this.createNewPlayfield();
-        }
+        e.stopPropagation();
+        const isVisible = dropdownMenu.style.display === 'block';
+        dropdownMenu.style.display = isVisible ? 'none' : 'block';
       });
       
       // Close dropdown when clicking elsewhere
-      document.addEventListener('click', (e) => {
-        if (!this.newBtn.contains(e.target as Node)) {
-          dropdownMenu.style.display = 'none';
-        }
+      document.addEventListener('click', () => {
+        dropdownMenu.style.display = 'none';
       });
     }
   }
@@ -568,7 +576,7 @@ export class SortDemo {
       while (j > 0) {
         const cmp = this.compare(j - 1, j);
         await this.pause(3);
-        
+
         if (cmp !== null && cmp > 0) {
           // If previous element is greater, swap them
           await this.swap(j - 1, j);
