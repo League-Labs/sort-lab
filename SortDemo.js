@@ -28,7 +28,7 @@ export class SortDemo {
             { title: "Bubble Sort", func: this.bubbleSort.bind(this) },
             { title: "Insertion Sort (Swap)", func: this.insertionSortSwap.bind(this) },
             { title: "Insertion Sort (Move)", func: this.insertionSortMove.bind(this) },
-            { title: "My Insertion Sort", func: this.myInsertionSort.bind(this) }
+            { title: "Aleks Insertion Sort Visualizer", func: this.aleksInsertionSortVisualizer.bind(this) }
         ];
         // Add a new property to track the current playfield type
         this.currentPlayfieldType = PlayfieldType.RANDOM;
@@ -513,10 +513,10 @@ export class SortDemo {
         });
     }
     /**
-     * Implements your custom insertion sort visualization (matching the visualizer.js logic)
+     * Aleks Insertion Sort Visualizer - uses user's visualizer.js logic for smooth, correct animation
      * @param n The number of elements to sort
      */
-    myInsertionSort(n) {
+    aleksInsertionSortVisualizer(n) {
         return __awaiter(this, void 0, void 0, function* () {
             // Mark the first element as sorted
             this.markSorted(0);
@@ -525,21 +525,22 @@ export class SortDemo {
                 let j = i - 1;
                 // Highlight current, sorted, and compare bars
                 this.clearMarks();
-                if (j >= 0) this.getBar(j).className = 'bar compare';
-                this.getBar(i).className = 'bar active';
+                this.getBar(i).classList.add('active');
+                if (j >= 0) this.getBar(j).classList.add('compare');
                 for (let k = 0; k < i; k++) this.markSorted(k);
                 yield this.pause(3);
                 while (j >= 0 && this.get(j) > key) {
-                    // Move bar up
+                    // Visually shift bar right
                     yield this.swap(j, j + 1);
                     this.clearMarks();
-                    if (j >= 0) this.getBar(j).className = 'bar compare';
-                    this.getBar(i).className = 'bar active';
+                    this.getBar(i).classList.add('active');
+                    if (j >= 0) this.getBar(j).classList.add('compare');
                     for (let k = 0; k < i; k++) this.markSorted(k);
                     yield this.pause(3);
-                    j = j - 1;
+                    j--;
                 }
-                // Mark sorted up to i
+                // Place key in correct position (already done by swaps)
+                this.clearMarks();
                 for (let k = 0; k <= i; k++) this.markSorted(k);
                 yield this.pause(3);
             }
