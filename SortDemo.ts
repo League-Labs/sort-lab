@@ -42,6 +42,9 @@ export class SortDemo {
   // Currently selected algorithm
   private currentAlgorithm: Algorithm;
 
+  // Add a new property to track the current playfield type
+  private currentPlayfieldType: PlayfieldType = PlayfieldType.RANDOM;
+
   constructor() {
     this.playfield = document.getElementById('playfield')!;
     this.startBtn = document.getElementById('start-btn') as HTMLButtonElement;
@@ -95,6 +98,80 @@ export class SortDemo {
     
     // Create initial playfield with random bars
     this.createNewPlayfield();
+
+    // Modify the new button implementation to include a dropdown
+    const newButton = document.getElementById('new-button');
+    if (newButton) {
+      // Convert the button to a button with dropdown
+      newButton.innerHTML = 'New <span class="dropdown-arrow">▼</span>';
+      newButton.style.position = 'relative';
+      
+      // Create dropdown menu
+      const dropdownMenu = document.createElement('div');
+      dropdownMenu.className = 'dropdown-menu';
+      dropdownMenu.style.display = 'none';
+      dropdownMenu.style.position = 'absolute';
+      dropdownMenu.style.top = '100%';
+      dropdownMenu.style.left = '0';
+      dropdownMenu.style.backgroundColor = '#f9f9f9';
+      dropdownMenu.style.minWidth = '120px';
+      dropdownMenu.style.boxShadow = '0px 8px 16px 0px rgba(0,0,0,0.2)';
+      dropdownMenu.style.zIndex = '1';
+      
+      // Add options to the dropdown menu
+      const options = Object.values(PlayfieldType);
+      options.forEach(option => {
+        const item = document.createElement('a');
+        item.textContent = option.charAt(0).toUpperCase() + option.slice(1);
+        item.style.padding = '12px 16px';
+        item.style.textDecoration = 'none';
+        item.style.display = 'block';
+        item.style.color = 'black';
+        item.style.cursor = 'pointer';
+        
+        item.addEventListener('mouseenter', () => {
+          item.style.backgroundColor = '#f1f1f1';
+        });
+        
+        item.addEventListener('mouseleave', () => {
+          item.style.backgroundColor = 'transparent';
+        });
+        
+        item.addEventListener('click', () => {
+          this.currentPlayfieldType = option as PlayfieldType;
+          dropdownMenu.style.display = 'none';
+          this.reset();
+        });
+        
+        dropdownMenu.appendChild(item);
+      });
+      
+      // Append dropdown to the button's parent
+      newButton.parentNode?.appendChild(dropdownMenu);
+      
+      // Toggle dropdown on arrow click
+      const arrowSpan = newButton.querySelector('.dropdown-arrow');
+      if (arrowSpan) {
+        arrowSpan.addEventListener('click', (e) => {
+          e.stopPropagation();
+          dropdownMenu.style.display = dropdownMenu.style.display === 'none' ? 'block' : 'none';
+        });
+      }
+      
+      // Main button still resets with current playfield type
+      newButton.addEventListener('click', () => {
+        if (e.target !== newButton.querySelector('.dropdown-arrow')) {
+          this.reset();
+        }
+      });
+      
+      // Close dropdown when clicking elsewhere
+      document.addEventListener('click', (e) => {
+        if (!newButton.contains(e.target as Node)) {
+          dropdownMenu.style.display = 'none';
+        }
+      });
+    }
   }
 
   /**
@@ -492,4 +569,11 @@ async insertionSortMove(n: number) {
     }
   }
 }
+}
+
+// Add these types/enums for the playfield options
+enum PlayfieldType {
+  RANDOM = 'random',
+  SORTED_DOWN = 'sorted down',
+  SORTED_UP = 'sorted up'
 }

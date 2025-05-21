@@ -48,5 +48,13 @@ To create your own sort routine:
 4) Run `npm run dev` to start the server
 
 Instead of (3) and (4) you can also run `npm run dev:watch` and the development
-server will automatically watch for changes, rebuild, and keep the server running. 
+server will automatically watch for changes, rebuild, and keep the server running.
+
+## Playfield Setup Options
+
+The "New" button includes a dropdown menu with different initialization options:
+
+* Random - Creates a playfield with randomly ordered elements (default)
+* Sorted Down - Creates a playfield with elements sorted in descending order
+* Sorted Up - Creates a playfield with elements sorted in ascending order
 
