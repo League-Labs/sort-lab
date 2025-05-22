@@ -544,8 +544,8 @@ export class SortDemo {
     let i: number = 0
     let j: number = 0
 
-    for (i = 0; i < n - 1; i++) {
-      for (j = 0; j < n - i - 1; j++) {
+    for (i = n - 1; i > 0; i--) {
+      for (j = 0; j < i; j++) {
         
         if (this.compare(j, j + 1) > 0) {
           await this.swap(j, j + 1);
@@ -553,7 +553,7 @@ export class SortDemo {
         }
       }
       // Mark the largest element as sorted after each pass
-      this.markSorted(j);
+      this.markSorted(i);
     }
 
   }

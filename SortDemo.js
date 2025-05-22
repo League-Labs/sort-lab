@@ -478,14 +478,14 @@ export class SortDemo {
         return __awaiter(this, void 0, void 0, function* () {
             let i = 0;
             let j = 0;
-            for (i = 0; i < n - 1; i++) {
-                for (j = 0; j < n - i - 1; j++) {
+            for (i = n - 1; i > 0; i--) {
+                for (j = 0; j < i; j++) {
                     if (this.compare(j, j + 1) > 0) {
                         yield this.swap(j, j + 1);
                     }
                 }
                 // Mark the largest element as sorted after each pass
-                this.markSorted(j);
+                this.markSorted(i);
             }
         });
     }
