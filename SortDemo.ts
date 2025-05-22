@@ -629,37 +629,40 @@ export class SortDemo {
    * @param n The number of elements to sort
    */
   async aleksInsertionSortVisualizer(n: number) {
+    // Mark the first element as sorted initially
     this.markSorted(0);
+    
+    // Process each element starting from the second one
     for (let i = 1; i < n; i++) {
-      let key = this.get(i);
+      // Get the current element's value safely
+      const key = this.get(i);
+      if (key === null) continue;
+      
+      // Start comparing with the previous element
       let j = i - 1;
-      this.clearMarks();
-      const barActive = this.getBar(i);
-      if (barActive) barActive.classList.add('active');
-      if (j >= 0) {
-        const barCompare = this.getBar(j);
-        if (barCompare) { barCompare.classList.add('compare'); }
-      }
-      for (let k = 0; k < i; k++) this.markSorted(k);
-      await this.pause(3);
-      while (j >= 0 && this.get(j)! > key!) {
-        await this.swap(j, j + 1);
-        this.clearMarks();
-        const barActiveInner = this.getBar(j);
-        if (barActiveInner) barActiveInner.classList.add('active');
-        if (j - 1 >= 0) {
-          const barCompareInner = this.getBar(j - 1);
-          if (barCompareInner) { barCompareInner.classList.add('compare'); }
+      
+      // Compare and swap elements until we find the right position
+      while (j >= 0) {
+        const prevValue = this.get(j);
+        // Safely compare values (avoiding non-null assertions)
+        if (prevValue !== null && prevValue > key) {
+          // If previous element is greater, swap them
+          await this.swap(j, j + 1);
+          j--;
+        } else {
+          // Element is in correct position, stop
+          break;
         }
-        for (let k = 0; k < i; k++) this.markSorted(k);
-        await this.pause(3);
-        j--;
       }
-      this.clearMarks();
-      for (let k = 0; k <= i; k++) this.markSorted(k);
-      await this.pause(3);
+      
+      // Mark current position as sorted
+      this.markSorted(i);
     }
-    for (let k = 0; k < n; k++) this.markSorted(k);
+    
+    // Ensure all elements are marked as sorted when complete
+    for (let k = 0; k < n; k++) {
+      this.markSorted(k);
+    }
   }
 }
 
