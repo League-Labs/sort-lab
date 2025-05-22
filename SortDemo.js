@@ -30,9 +30,12 @@ export class SortDemo {
         // Control flags
         this.isSorting = false; // Is a sort in progress?
         this.isPaused = false; // Is the sort paused?
+        // States for color-coding during quicksort
+        this.states = []; // 0: normal, 1: pivot, 2: compared, 3: sorted
         // Available sorting algorithms
         this.algorithms = [
             { title: "Bubble Sort", func: this.bubbleSort.bind(this) },
+            { title: "Finn's Bubble Sort Visualizer", func: this.bubbleSort.bind(this) },
             { title: "Insertion Sort (Swap)", func: this.insertionSortSwap.bind(this) },
             { title: "Insertion Sort (Move)", func: this.insertionSortMove.bind(this) },
             { title: "Aleks Insertion Sort Visualizer", func: this.aleksInsertionSortVisualizer.bind(this) }
