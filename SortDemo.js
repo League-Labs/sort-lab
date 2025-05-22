@@ -35,9 +35,14 @@ export class SortDemo {
         // Available sorting algorithms
         this.algorithms = [
             { title: "Bubble Sort", func: this.bubbleSort.bind(this) },
+            { title: "Finn's Bubble Sort Visualizer", func: this.bubbleSort.bind(this) },
             { title: "Insertion Sort (Swap)", func: this.insertionSortSwap.bind(this) },
             { title: "Insertion Sort (Move)", func: this.insertionSortMove.bind(this) },
+
             { title: "Gabrio Norton Quicksort", func: this.quicksort.bind(this) }
+
+            { title: "Aleks Insertion Sort Visualizer", func: this.aleksInsertionSortVisualizer.bind(this) }
+
         ];
         // Add a new property to track the current playfield type
         this.currentPlayfieldType = PlayfieldType.RANDOM;
@@ -552,6 +557,7 @@ export class SortDemo {
             }
         });
     }
+
     // Quicksort implementation
     quicksort(n) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -636,6 +642,56 @@ export class SortDemo {
                 };
                 checkPaused();
             });
+
+    /**
+     * Implements the insertion sort algorithm with visualization
+     * For each element, insert it into its correct position in the sorted part of the array
+     * @param n The number of elements to sort
+     */
+    aleksInsertionSortVisualizer(n) {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.markSorted(0);
+            for (let i = 1; i < n; i++) {
+                let key = this.get(i);
+                let j = i - 1;
+                this.clearMarks();
+                const barActive = this.getBar(i);
+                if (barActive)
+                    barActive.classList.add('active');
+                if (j >= 0) {
+                    const barCompare = this.getBar(j);
+                    if (barCompare) {
+                        barCompare.classList.add('compare');
+                    }
+                }
+                for (let k = 0; k < i; k++)
+                    this.markSorted(k);
+                yield this.pause(3);
+                while (j >= 0 && this.get(j) > key) {
+                    yield this.swap(j, j + 1);
+                    this.clearMarks();
+                    const barActiveInner = this.getBar(j);
+                    if (barActiveInner)
+                        barActiveInner.classList.add('active');
+                    if (j - 1 >= 0) {
+                        const barCompareInner = this.getBar(j - 1);
+                        if (barCompareInner) {
+                            barCompareInner.classList.add('compare');
+                        }
+                    }
+                    for (let k = 0; k < i; k++)
+                        this.markSorted(k);
+                    yield this.pause(3);
+                    j--;
+                }
+                this.clearMarks();
+                for (let k = 0; k <= i; k++)
+                    this.markSorted(k);
+                yield this.pause(3);
+            }
+            for (let k = 0; k < n; k++)
+                this.markSorted(k);
+
         });
     }
 }

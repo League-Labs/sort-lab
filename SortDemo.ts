@@ -9,7 +9,7 @@ enum PlayfieldType {
  * SortDemo.ts
  * This file contains the SortDemo class which provides a visual representation of sorting algorithms.
  * It includes methods for creating a playfield, swapping elements, and running various sorting algorithms.
- *
+ */
 
 /**
  * Type definition for sorting algorithms
@@ -51,9 +51,14 @@ export class SortDemo {
   // Available sorting algorithms
   private algorithms: Algorithm[] = [
     { title: "Bubble Sort", func: this.bubbleSort.bind(this) },
+    { title: "Finn's Bubble Sort Visualizer", func: this.bubbleSort.bind(this) },
     { title: "Insertion Sort (Swap)", func: this.insertionSortSwap.bind(this) },
     { title: "Insertion Sort (Move)", func: this.insertionSortMove.bind(this) },
+
     { title: "Gabrio Norton Quicksort", func: this.quicksort.bind(this) }
+
+    { title: "Aleks Insertion Sort Visualizer", func: this.aleksInsertionSortVisualizer.bind(this) }
+
   ];
   
   // Currently selected algorithm
@@ -626,6 +631,7 @@ export class SortDemo {
     }
   }
 
+
   // Quicksort implementation
   private async quicksort(n: number): Promise<void> {
     this.states = new Array(n).fill(0);
@@ -709,6 +715,46 @@ export class SortDemo {
       };
       checkPaused();
     });
+  }
+
+
+  /**
+   * Implements the insertion sort algorithm with visualization
+   * For each element, insert it into its correct position in the sorted part of the array
+   * @param n The number of elements to sort
+   */
+  async aleksInsertionSortVisualizer(n: number) {
+    this.markSorted(0);
+    for (let i = 1; i < n; i++) {
+      let key = this.get(i);
+      let j = i - 1;
+      this.clearMarks();
+      const barActive = this.getBar(i);
+      if (barActive) barActive.classList.add('active');
+      if (j >= 0) {
+        const barCompare = this.getBar(j);
+        if (barCompare) { barCompare.classList.add('compare'); }
+      }
+      for (let k = 0; k < i; k++) this.markSorted(k);
+      await this.pause(3);
+      while (j >= 0 && this.get(j)! > key!) {
+        await this.swap(j, j + 1);
+        this.clearMarks();
+        const barActiveInner = this.getBar(j);
+        if (barActiveInner) barActiveInner.classList.add('active');
+        if (j - 1 >= 0) {
+          const barCompareInner = this.getBar(j - 1);
+          if (barCompareInner) { barCompareInner.classList.add('compare'); }
+        }
+        for (let k = 0; k < i; k++) this.markSorted(k);
+        await this.pause(3);
+        j--;
+      }
+      this.clearMarks();
+      for (let k = 0; k <= i; k++) this.markSorted(k);
+      await this.pause(3);
+    }
+    for (let k = 0; k < n; k++) this.markSorted(k);
   }
 
 }
