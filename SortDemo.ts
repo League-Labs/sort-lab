@@ -45,11 +45,18 @@ export class SortDemo {
   private isSorting: boolean = false; // Is a sort in progress?
   private isPaused: boolean = false; // Is the sort paused?
   
+  // States for color-coding during quicksort
+  private states: number[] = []; // 0: normal, 1: pivot, 2: compared, 3: sorted
+
   // Available sorting algorithms
   private algorithms: Algorithm[] = [
     { title: "Bubble Sort", func: this.bubbleSort.bind(this) },
-    { title: "Insertion Sort (Swap)", func: this.insertionSortSwap.bind(this) },
-    { title: "Insertion Sort (Move)", func: this.insertionSortMove.bind(this) }
+    { title: "Bubble Sort (Finn)", func: this.bubbleSort.bind(this) },
+    { title: "Insertion Swap Sort (Swap)", func: this.insertionSortSwap.bind(this) },
+    { title: "Insertion Move Sort (Move)", func: this.insertionSortMove.bind(this) },
+    { title: "Insertion Swap Sort (Alek)", func: this.aleksInsertionSortVisualizer.bind(this) },
+    { title: "Quicksort (Gabrio)", func: this.quicksort.bind(this) },
+
   ];
   
   // Currently selected algorithm
@@ -619,6 +626,135 @@ export class SortDemo {
         // No move needed, just mark as sorted
         this.markSorted(i);
       }
+    }
+  }
+
+
+  // Quicksort implementation
+  private async quicksort(n: number): Promise<void> {
+    this.states = new Array(n).fill(0);
+    await this.quicksortHelper(0, n - 1);
+    // Mark all elements as sorted when done
+    this.states.fill(3);
+    await this.updatePlayfield();
+  }
+
+  private async quicksortHelper(low: number, high: number): Promise<void> {
+    if (low < high && this.isSorting && !this.isPaused) {
+      const pi = await this.partition(low, high);
+      await this.quicksortHelper(low, pi - 1);
+      await this.quicksortHelper(pi + 1, high);
+    }
+  }
+
+  private async partition(low: number, high: number): Promise<number> {
+    const bars = this.playfield.children;
+    const pivot = parseInt((bars[high] as HTMLElement).style.height);
+    this.states[high] = 1; // Mark pivot
+    await this.updatePlayfield();
+    
+    let i = low - 1;
+    
+    for (let j = low; j < high; j++) {
+      if (this.isPaused) {
+        await this.waitForResume();
+      }
+      if (!this.isSorting) return i + 1;
+
+      this.states[j] = 2; // Mark current element being compared
+      await this.updatePlayfield();
+      await this.pause();
+
+      const current = parseInt((bars[j] as HTMLElement).style.height);
+      if (current < pivot) {
+        i++;
+        await this.swap(i, j);
+      }
+      
+      this.states[j] = 0; // Reset state
+      await this.updatePlayfield();
+    }
+    
+    await this.swap(i + 1, high);
+    this.states[high] = 0; // Reset pivot state
+    return i + 1;
+  }
+
+  private async updatePlayfield(): Promise<void> {
+    const bars = this.playfield.children;
+    for (let i = 0; i < bars.length; i++) {
+      const bar = bars[i] as HTMLElement;
+      // Update colors based on states
+      switch (this.states[i]) {
+        case 1: // Pivot
+          bar.style.backgroundColor = '#ff0000';
+          break;
+        case 2: // Being compared
+          bar.style.backgroundColor = '#ffa500';
+          break;
+        case 3: // Sorted
+          bar.style.backgroundColor = '#00ff00';
+          break;
+        default: // Normal
+          bar.style.backgroundColor = '#3498db';
+          break;
+      }
+    }
+  }
+
+  private async waitForResume(): Promise<void> {
+    return new Promise<void>(resolve => {
+      const checkPaused = () => {
+        if (!this.isPaused) {
+          resolve();
+        } else {
+          setTimeout(checkPaused, 100);
+        }
+      };
+      checkPaused();
+    });
+  }
+
+
+  /**
+   * Implements the insertion sort algorithm with visualization
+   * For each element, insert it into its correct position in the sorted part of the array
+   * @param n The number of elements to sort
+   */
+  async aleksInsertionSortVisualizer(n: number) {
+    // Mark the first element as sorted initially
+    this.markSorted(0);
+    
+    // Process each element starting from the second one
+    for (let i = 1; i < n; i++) {
+      // Get the current element's value safely
+      const key = this.get(i);
+      if (key === null) continue;
+      
+      // Start comparing with the previous element
+      let j = i - 1;
+      
+      // Compare and swap elements until we find the right position
+      while (j >= 0) {
+        const prevValue = this.get(j);
+        // Safely compare values (avoiding non-null assertions)
+        if (prevValue !== null && prevValue > key) {
+          // If previous element is greater, swap them
+          await this.swap(j, j + 1);
+          j--;
+        } else {
+          // Element is in correct position, stop
+          break;
+        }
+      }
+      
+      // Mark current position as sorted
+      this.markSorted(i);
+    }
+    
+    // Ensure all elements are marked as sorted when complete
+    for (let k = 0; k < n; k++) {
+      this.markSorted(k);
     }
   }
 
