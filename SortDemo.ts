@@ -55,10 +55,9 @@ export class SortDemo {
     { title: "Insertion Sort (Swap)", func: this.insertionSortSwap.bind(this) },
     { title: "Insertion Sort (Move)", func: this.insertionSortMove.bind(this) },
 
-    { title: "Gabrio Norton Quicksort", func: this.quicksort.bind(this) }
+    { title: "Gabrio Norton Quicksort", func: this.quicksort.bind(this) },
 
     { title: "Aleks Insertion Sort Visualizer", func: this.aleksInsertionSortVisualizer.bind(this) }
-
   ];
   
   // Currently selected algorithm
