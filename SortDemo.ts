@@ -48,6 +48,7 @@ export class SortDemo {
   // Available sorting algorithms
   private algorithms: Algorithm[] = [
     { title: "Bubble Sort", func: this.bubbleSort.bind(this) },
+    { title: "Finn's Bubble Sort Visualizer", func: this.bubbleSort.bind(this) },
     { title: "Insertion Sort (Swap)", func: this.insertionSortSwap.bind(this) },
     { title: "Insertion Sort (Move)", func: this.insertionSortMove.bind(this) },
     { title: "Aleks Insertion Sort Visualizer", func: this.aleksInsertionSortVisualizer.bind(this) }
