@@ -30,11 +30,14 @@ export class SortDemo {
         // Control flags
         this.isSorting = false; // Is a sort in progress?
         this.isPaused = false; // Is the sort paused?
+        // States for color-coding during quicksort
+        this.states = []; // 0: normal, 1: pivot, 2: compared, 3: sorted
         // Available sorting algorithms
         this.algorithms = [
             { title: "Bubble Sort", func: this.bubbleSort.bind(this) },
             { title: "Insertion Sort (Swap)", func: this.insertionSortSwap.bind(this) },
-            { title: "Insertion Sort (Move)", func: this.insertionSortMove.bind(this) }
+            { title: "Insertion Sort (Move)", func: this.insertionSortMove.bind(this) },
+            { title: "Gabrio Norton Quicksort", func: this.quicksort.bind(this) }
         ];
         // Add a new property to track the current playfield type
         this.currentPlayfieldType = PlayfieldType.RANDOM;
@@ -547,6 +550,92 @@ export class SortDemo {
                     this.markSorted(i);
                 }
             }
+        });
+    }
+    // Quicksort implementation
+    quicksort(n) {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.states = new Array(n).fill(0);
+            yield this.quicksortHelper(0, n - 1);
+            // Mark all elements as sorted when done
+            this.states.fill(3);
+            yield this.updatePlayfield();
+        });
+    }
+    quicksortHelper(low, high) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (low < high && this.isSorting && !this.isPaused) {
+                const pi = yield this.partition(low, high);
+                yield this.quicksortHelper(low, pi - 1);
+                yield this.quicksortHelper(pi + 1, high);
+            }
+        });
+    }
+    partition(low, high) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const bars = this.playfield.children;
+            const pivot = parseInt(bars[high].style.height);
+            this.states[high] = 1; // Mark pivot
+            yield this.updatePlayfield();
+            let i = low - 1;
+            for (let j = low; j < high; j++) {
+                if (this.isPaused) {
+                    yield this.waitForResume();
+                }
+                if (!this.isSorting)
+                    return i + 1;
+                this.states[j] = 2; // Mark current element being compared
+                yield this.updatePlayfield();
+                yield this.pause();
+                const current = parseInt(bars[j].style.height);
+                if (current < pivot) {
+                    i++;
+                    yield this.swap(i, j);
+                }
+                this.states[j] = 0; // Reset state
+                yield this.updatePlayfield();
+            }
+            yield this.swap(i + 1, high);
+            this.states[high] = 0; // Reset pivot state
+            return i + 1;
+        });
+    }
+    updatePlayfield() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const bars = this.playfield.children;
+            for (let i = 0; i < bars.length; i++) {
+                const bar = bars[i];
+                // Update colors based on states
+                switch (this.states[i]) {
+                    case 1: // Pivot
+                        bar.style.backgroundColor = '#ff0000';
+                        break;
+                    case 2: // Being compared
+                        bar.style.backgroundColor = '#ffa500';
+                        break;
+                    case 3: // Sorted
+                        bar.style.backgroundColor = '#00ff00';
+                        break;
+                    default: // Normal
+                        bar.style.backgroundColor = '#3498db';
+                        break;
+                }
+            }
+        });
+    }
+    waitForResume() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return new Promise(resolve => {
+                const checkPaused = () => {
+                    if (!this.isPaused) {
+                        resolve();
+                    }
+                    else {
+                        setTimeout(checkPaused, 100);
+                    }
+                };
+                checkPaused();
+            });
         });
     }
 }
