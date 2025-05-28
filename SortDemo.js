@@ -40,6 +40,7 @@ export class SortDemo {
             { title: "Insertion Move Sort (Move)", func: this.insertionSortMove.bind(this) },
             { title: "Insertion Swap Sort (Alek)", func: this.aleksInsertionSortVisualizer.bind(this) },
             { title: "Quicksort (Gabrio)", func: this.quicksort.bind(this) },
+            { title: "TimSort (Adriel)", func: this.timSort.bind(this) },
         ];
         // Add a new property to track the current playfield type
         this.currentPlayfieldType = PlayfieldType.RANDOM;
@@ -676,6 +677,89 @@ export class SortDemo {
             }
             // Ensure all elements are marked as sorted when complete
             for (let k = 0; k < n; k++) {
+                this.markSorted(k);
+            }
+        });
+    }
+    /**
+     * TimSort implementation - a hybrid sorting algorithm combining merge sort and insertion sort
+     * @param n The number of elements to sort
+     */
+    timSort(n) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const minRun = 32; // Minimum size of a run for merge sort
+            
+            // Sort individual subarrays of size RUN using insertion sort
+            for (let i = 0; i < n; i += minRun) {
+                const end = Math.min(i + minRun, n);
+                yield this.insertionSortRange(i, end);
+            }
+
+            // Start merging runs from size minRun
+            for (let size = minRun; size < n; size *= 2) {
+                // Pick starting points of merging
+                for (let left = 0; left < n - size; left += 2 * size) {
+                    const mid = left + size;
+                    const right = Math.min(left + 2 * size, n);
+                    yield this.merge(left, mid, right);
+                }
+            }
+
+            // Mark all elements as sorted
+            for (let i = 0; i < n; i++) {
+                this.markSorted(i);
+            }
+        });
+    }
+    /**
+     * Performs insertion sort on a range of elements
+     * @param start Start index of the range
+     * @param end End index of the range (exclusive)
+     */
+    insertionSortRange(start, end) {
+        return __awaiter(this, void 0, void 0, function* () {
+            for (let i = start + 1; i < end; i++) {
+                let j = start;
+                // Find where to insert element i in the sorted portion
+                while (j < i && this.compare(j, i) <= 0) {
+                    j++;
+                }
+                if (j < i) {
+                    yield this.move(i, j);
+                    // Mark the sorted section
+                    for (let k = start; k <= i; k++) {
+                        this.markSorted(k);
+                    }
+                } else {
+                    this.markSorted(i);
+                }
+            }
+        });
+    }
+    /**
+     * Merges two sorted subarrays into one
+     * @param start Start index of first subarray
+     * @param mid Middle index where second subarray starts
+     * @param end End index of second subarray (exclusive)
+     */
+    merge(start, mid, end) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let i = start;
+            let j = mid;
+            
+            while (i < j && j < end) {
+                if (this.compare(i, j) > 0) {
+                    // If element at i is greater than element at j,
+                    // move element at j to position i and shift everything right
+                    yield this.move(j, i);
+                    // Update indices to account for the move
+                    j++;
+                }
+                i++;
+            }
+
+            // Mark the merged section as sorted
+            for (let k = start; k < end; k++) {
                 this.markSorted(k);
             }
         });
